@@ -17,7 +17,7 @@ BUILDING=46920
 UNSTABLE=12750
 
 main () {
-    local jsonData="{\"hue\":${!1}}"
+    local jsonData="{\"hue\":${!1},\"bri\":255,\"sat\":255}"
     local lightStateUrl="$2"
     
     curl -X PUT -d "$jsonData" "$lightStateUrl"

@@ -20,11 +20,11 @@ export -f curl
 @test "should update hue with green on GOOD" {
     run $hue_updater GOOD "$lightStateUrl"
 
-    [ "$output" == "Calling curl with -X PUT -d {\"hue\":25717} http://example.com/lights/1/state" ]
+    [ "$output" == "Calling curl with -X PUT -d {\"hue\":25717,\"bri\":255,\"sat\":255} http://example.com/lights/1/state" ]
 }
 
 @test "should update hue with red on BAD" {
     run $hue_updater BAD "$lightStateUrl"
 
-    [ "$output" == "Calling curl with -X PUT -d {\"hue\":0} http://example.com/lights/1/state" ]
+    [ "$output" == "Calling curl with -X PUT -d {\"hue\":0,\"bri\":255,\"sat\":255} http://example.com/lights/1/state" ]
 }

@@ -9,4 +9,4 @@ JENKINS_PARSER="${DIR}/jenkins_parser.sh"
 export HUE_UPDATER
 export JENKINS_PARSER
 
-BUILDER $*
+$BUILDER $*

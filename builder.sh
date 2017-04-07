@@ -52,6 +52,49 @@ verifyConfigFile () {
     exit $returnValue
 }
 
+buildArgumentStringForHueUpdater () {
+    local configFile="$1"
+
+    argumentString=""
+
+    local badColor=$(cat $configFile | jq -re '.colors.bad')
+    if [ $badColor != "null" ]; then
+        argumentString=$(echo "$argumentString --bad-color $badColor")
+    fi
+
+    local goodColor=$(cat $configFile | jq -re '.colors.good')
+    if [ $goodColor != "null" ]; then
+        argumentString=$(echo "$argumentString --good-color $goodColor")
+    fi
+
+    local buildingColor=$(cat $configFile | jq -re '.colors.building')
+    if [ $buildingColor != "null" ]; then
+        argumentString=$(echo "$argumentString --building-color $buildingColor")
+    fi
+
+    local badAndBuildingColor=$(cat $configFile | jq -re '.colors.badAndBuilding')
+    if [ $badAndBuildingColor != "null" ]; then
+        argumentString=$(echo "$argumentString --bad-and-building-color $badAndBuildingColor")
+    fi
+
+    local unstableColor=$(cat $configFile | jq -re '.colors.unstable')
+    if [ $unstableColor != "null" ]; then
+        argumentString=$(echo "$argumentString --unstable-color $unstableColor")
+    fi
+
+    local saturation=$(cat $configFile | jq -re '.saturation')
+    if [ $saturation != "null" ]; then
+        argumentString=$(echo "$argumentString --saturation $saturation")
+    fi
+
+    local brightness=$(cat $configFile | jq -re '.brightness')
+    if [ $brightness != "null" ]; then
+        argumentString=$(echo "$argumentString --brightness $brightness")
+    fi
+
+    echo "$argumentString"
+}
+
 runBuilder () {
     local configFile="$1"
 
@@ -60,8 +103,9 @@ runBuilder () {
     local jenkinsViewUrl=$(readJenkinsUrlFromConfigFile "$configFile")
     local hueLightStateUrl=$(readLightStateUrlFromConfigFile "$configFile")
     local jenkinsViewState=$($JENKINS_PARSER "$jenkinsViewUrl")
+    local argumentString=$(buildArgumentStringForHueUpdater "$configFile")
 
-    $HUE_UPDATER $jenkinsViewState "$hueLightStateUrl"
+    $HUE_UPDATER $argumentString $jenkinsViewState "$hueLightStateUrl"
 }
 
 main () {

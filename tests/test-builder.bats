@@ -73,3 +73,9 @@ export HUE_UPDATER
     [ "$status" -eq 1 ]
     [ "$output" == "Bruh, that file doesn't exist." ]
 }
+
+@test "should send color, saturation, and brightness optiosn to hue updater" {
+    run $builder "./fixtures/sample-config-fully-loaded.json"
+
+    [ "$output" == "Updating Hue with: --bad-color 123 --good-color 234 --building-color 345 --bad-and-building-color 456 --unstable-color 567 --saturation 111 --brightness 222 GOOD http://example.com/hue/lights/1/state" ]
+}

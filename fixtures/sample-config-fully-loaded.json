@@ -1,0 +1,13 @@
+{
+    "jenkinsViewUrl": "http://example.com/JenkinsView/api/json",
+    "hueLightStateUrl": "http://example.com/hue/lights/1/state",
+    "colors": {
+        "bad": 123,
+        "good": 234,
+        "building": 345,
+        "badAndBuilding": 456,
+        "unstable": 567
+    },
+    "saturation": 111,
+    "brightness": 222
+}

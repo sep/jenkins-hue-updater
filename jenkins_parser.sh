@@ -63,7 +63,7 @@ getTheJson () {
 getTheColorsFromJson () {
     local json="$1"
 
-    echo "$json" | jq '.jobs[].color'
+    echo "$json" | jq '.jobs[].color' | tr -d '\r'
 }
 
 getTheResultFromColorList () {

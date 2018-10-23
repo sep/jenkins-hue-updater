@@ -55,15 +55,26 @@ areAnyJobsUnstable () {
 }
 
 getTheJson () {
-    local jenkinsViewUrl="$1"
+    jenkinsViewUrl="$1"
+    curlOutput=$( curl "$jenkinsViewUrl" 2>/dev/null )
 
-    curl "$jenkinsViewUrl" 2>/dev/null
+    if [[ $? -ne 0 ]]; then
+	echo -n "ERROR"
+    else
+	echo "$curlOutput"
+    fi
 }
 
 getTheColorsFromJson () {
     local json="$1"
+    jqOutput=$( echo "$json" | jq '.jobs[].color' 2> /dev/null )
 
-    echo "$json" | jq '.jobs[].color' | tr -d '\r'
+    if [[ $? -ne 0 ]]; then
+	echo -n "ERROR"
+    else
+	local jqOutputWithoutReturns=$( echo "$json" | jq '.jobs[].color' | tr -d '\r' )
+	echo $jqOutputWithoutReturns
+    fi
 }
 
 getTheResultFromColorList () {
@@ -89,9 +100,19 @@ getTheResultFromColorList () {
 main () {
     local jenkinsViewUrl="$1"
     local json=$(getTheJson "$jenkinsViewUrl")
-    local colors=$(getTheColorsFromJson "$json")
 
-    echo "$(getTheResultFromColorList $colors)"
+    if [[ $json == "ERROR" ]]; then
+	echo "JENKINS_DOWN"
+
+    else
+	local colors=$(getTheColorsFromJson "$json")
+
+	if [[ $colors == "ERROR" ]]; then
+	    echo "JENKINS_DOWN"
+	else
+	    echo "$(getTheResultFromColorList $colors)"
+	fi
+    fi
 }
 
 main "$1"

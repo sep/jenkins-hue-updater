@@ -17,7 +17,7 @@ BRIGHTNESS=255
 dieIfStateIsInvalid () {
     local state="$1"
     
-    if [[ "-GOOD-BAD-BAD_AND_BUILDING-BUILDING-UNSTABLE-" != *"-${state}-"* ]]; then
+    if [[ "-GOOD-BAD-BAD_AND_BUILDING-BUILDING-UNSTABLE-JENKINS_DOWN-" != *"-${state}-"* ]]; then
         echo "Invalid state. Try again, buddy."
         exit 1
     fi
@@ -25,11 +25,14 @@ dieIfStateIsInvalid () {
 
 updateHueState () {
     local state="$1"
-
     dieIfStateIsInvalid "$state"
-    
-    local jsonData="{\"hue\":${!1},\"bri\":${BRIGHTNESS},\"sat\":${SATURATION}}"
+
     local lightStateUrl="$2"
+    local jsonData="{\"hue\":${!1},\"on\":true,\"bri\":${BRIGHTNESS},\"sat\":${SATURATION}}"
+    
+    if [ $state == "JENKINS_DOWN" ]; then
+	jsonData="{\"on\":false}"
+    fi
     
     curl -X PUT -d "$jsonData" "$lightStateUrl"
 }

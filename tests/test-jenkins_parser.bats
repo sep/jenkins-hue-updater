@@ -79,3 +79,35 @@ jenkins_parser="./jenkins_parser.sh"
 
     [ "$output" == "UNSTABLE" ]
 }
+
+@test "should respond with JENKINS_DOWN if unable to get response from server" {
+    function curl() {
+        if [ "$1" != "$expectedUrl" ]; then
+            exit 1
+        fi
+
+	return 6
+    }
+    export -f curl
+
+    local thing=$( curl "$expectedUrl" )
+
+    run $jenkins_parser "$expectedUrl"
+
+    [ "$output" == "JENKINS_DOWN" ]
+}
+
+@test "should respond with JENKINS_DOWN if response is unparseable" {
+    function curl() {
+        if [ "$1" != "$expectedUrl" ]; then
+            exit 1
+        fi
+
+	echo "nonsensical output"
+    }
+    export -f curl
+
+    run $jenkins_parser "$expectedUrl"
+
+    [ "$output" == "JENKINS_DOWN" ]
+}

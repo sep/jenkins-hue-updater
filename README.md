@@ -41,6 +41,7 @@ The build states are:
 * `building`: at least one build collected in your Jenkins view is building, and the others are passed
 * `badAndBuilding`: at least one build collected in your Jenkins view is building, and at least one is failed
 * `unstable`: at least one build collected in your Jenkins view is unstable, and the rest are passing
+* `jenkins_down`: unable to reach Jenkins: the light goes off
 
 ## Colors
 

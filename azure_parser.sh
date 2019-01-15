@@ -13,7 +13,9 @@ hash jq 2>/dev/null || {
 getTheJson () {
     jenkinsViewUrl="$1"
 	token="$2"
-    curlOutput=$( curl -u "$token" --header "Content-Type: application/json" "$jenkinsViewUrl" 2>/dev/null )
+	latestBuildUrl=$( curl -u "$token" "$jenkinsViewUrl" | jq -r '.value[0]._links.self.href' | tr -d '\r\n' )
+	
+    curlOutput=$( curl -u "$token" --header "Content-Type: application/json" "$latestBuildUrl" 2>/dev/null )
 
     if [[ $? -ne 0 ]]; then
 		echo -n "ERROR"
@@ -24,18 +26,19 @@ getTheJson () {
 
 getTheColorsFromJson () {
     local json="$1"
-    jqOutput=$( echo "$json" | jq '.status' 2> /dev/null )
+	agentName="$2"
+	jqProgram=".environments[] | select(.name == \"$agentName\") | .status"
+    jqOutput=$( echo "$json" | jq -r "$jqProgram" | tr -d '\r\n' )
 
     if [[ $? -ne 0 ]]; then
 		echo -n "ERROR"
     else
-		local status=$( echo "$json" | jq '.status' | tr -d '\r' )
-		local result=$( echo "$json" | jq '.result' | tr -d '\r' )
+		local status=$( echo "$json" | jq -r "$jqProgram" | tr -d '\r\n' )
 	
-		if [ "$status" != "\"completed\"" ]; then
+		if [ "$status" == "inProgress" ]; then
 			echo -n "BUILDING"
 		else
-			if [[ "$result" == "\"succeeded\"" ]]; then
+			if [[ "$status" == "succeeded" ]]; then
 				echo -n "GOOD"
 			else
 				echo -n "BAD"
@@ -47,14 +50,14 @@ getTheColorsFromJson () {
 main () {
     local jenkinsViewUrl="$1"
 	local token="$2"
+	local agentName="$3"
 
-	echo "$jenkinsViewUrl:$token" > /tmp/json.json
     local json=$(getTheJson "$jenkinsViewUrl" ":$token")
 
     if [[ $json == "ERROR" ]]; then
 		echo "JENKINS_DOWN"
     else
-		local colors=$(getTheColorsFromJson "$json")
+		local colors=$(getTheColorsFromJson "$json" "$agentName")
 
 		if [[ $colors == "ERROR" ]]; then
 			echo "JENKINS_DOWN"
@@ -64,4 +67,4 @@ main () {
     fi
 }
 
-main "$1" "$2"
+main "$1" "$2" "$3"

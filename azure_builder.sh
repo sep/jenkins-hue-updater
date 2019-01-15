@@ -28,6 +28,12 @@ readAzureTokenFromConfigFile () {
 	cat "$configFile" | jq -r '.azureToken'
 }
 
+readAgentNameFromConfigFile () {
+	local configFile="$1"
+
+	cat "$configFile" | jq -r '.agentName' | tr -d '\r'
+}
+
 dieIfConfigFileDoesNotExist () {
     local configFile="$1"
 
@@ -109,7 +115,8 @@ runBuilder () {
     local jenkinsViewUrl=$(readJenkinsUrlFromConfigFile "$configFile")
     local hueLightStateUrl=$(readLightStateUrlFromConfigFile "$configFile")
 	local azureToken=$(readAzureTokenFromConfigFile "$configFile")
-    local jenkinsViewState=$($JENKINS_PARSER "$jenkinsViewUrl" "$azureToken")
+	local agentName=$(readAgentNameFromConfigFile "$configFile")
+    local jenkinsViewState=$($JENKINS_PARSER "$jenkinsViewUrl" "$azureToken" "$agentName")
     local argumentString=$(buildArgumentStringForHueUpdater "$configFile")
 
     $HUE_UPDATER $argumentString $jenkinsViewState "$hueLightStateUrl"

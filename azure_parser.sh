@@ -37,12 +37,12 @@ getTheColorsFromJson () {
 	
 		if [ "$status" == "inProgress" ]; then
 			echo -n "BUILDING"
+		elif [ "$status" == "succeeded" ]; then
+			echo -n "GOOD"
+		elif [ "$status" == "notStarted" ]; then
+			echo -n "UNSTABLE"
 		else
-			if [[ "$status" == "succeeded" ]]; then
-				echo -n "GOOD"
-			else
-				echo -n "BAD"
-			fi
+			echo -n "BAD"
 		fi
     fi
 }
